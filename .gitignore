@@ -5,3 +5,5 @@
 
 # vscode files
 .vscode/
+#temp files
+temp/

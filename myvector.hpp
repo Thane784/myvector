@@ -2,6 +2,8 @@
 #include <iostream>
 #include <initializer_list>
 #include <cassert>
+#include "myiterator.hpp"
+#include "write_check.hpp"
 
 template <class T>
 class myvector{
@@ -17,7 +19,8 @@ public:
     myvector(myvector&& myvec);
     virtual ~myvector(){delete[] m_array;};
     // operators 
-    T& operator[] (const int index) const{return(m_array[index]);};       
+    T& operator[] (const int index) const;       
+    write_check<T> operator[] (const int index);
     myvector<T>& operator =(const myvector<T> & myvec);
     myvector<T>& operator =(myvector<T>&& myvec);
     template<class U>
@@ -25,13 +28,30 @@ public:
     template<class U>
     friend bool operator == ( const myvector<U> &a, const myvector<U>  &b);
     // functions
+    myiterator<T> begin() const;
+    myiterator<T> end() const;
+    void insert(myiterator<T> it,T value);//ttc assert write
     void push_back(T value);
     void pop_back();
-    void resize(int size); //ttc assert
+    void resize(int size);
     int size() const {return(m_size);};
 };
 
 // functions
+
+template<class T>
+myiterator<T> myvector<T>::begin() const{
+    return(myiterator{m_array});
+}
+
+template<class T>
+myiterator<T> myvector<T>::end() const{
+    return(myiterator{m_array+m_size});
+}
+
+template<class T>
+void myvector<T>::insert(myiterator<T> it,T value){
+}
 
 template<class T>
 void myvector<T>::push_back(T value){
@@ -57,6 +77,18 @@ void myvector<T>::resize(int size){
 }
 
 // operators
+
+template<class T>
+T& myvector<T>::operator[] (const int index) const{
+    if(index<0 or index>=m_size)
+        return(0);
+    return m_array[index];
+}
+
+template<class T>
+write_check<T> myvector<T>::operator[] (const int index){
+    return(write_check<T>(*this, m_array[index], index));
+}
 
 template<class T>
 myvector<T>& myvector<T>::operator=(const myvector<T>& myvec){
@@ -146,4 +178,7 @@ myvector<T>::myvector(myvector<T>&& myvec){
         m_array = nullptr;
     myvec.m_array = nullptr;
 }
+
+
+
 
