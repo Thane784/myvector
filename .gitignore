@@ -7,3 +7,5 @@
 .vscode/
 #temp files
 temp/
+#useless files
+write_check.hpp

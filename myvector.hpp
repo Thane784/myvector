@@ -19,8 +19,8 @@ public:
     myvector(myvector&& myvec);
     virtual ~myvector(){delete[] m_array;};
     // operators 
-    T& operator[] (const int index) const;       
-    write_check<T> operator[] (const int index);
+    T& operator[] (const int index) const {return(m_array[index]);};       
+    T& operator[] (const int index){return(m_array[index]);}; 
     myvector<T>& operator =(const myvector<T> & myvec);
     myvector<T>& operator =(myvector<T>&& myvec);
     template<class U>
@@ -77,18 +77,6 @@ void myvector<T>::resize(int size){
 }
 
 // operators
-
-template<class T>
-T& myvector<T>::operator[] (const int index) const{
-    if(index<0 or index>=m_size)
-        return(0);
-    return m_array[index];
-}
-
-template<class T>
-write_check<T> myvector<T>::operator[] (const int index){
-    return(write_check<T>(*this, m_array[index], index));
-}
 
 template<class T>
 myvector<T>& myvector<T>::operator=(const myvector<T>& myvec){

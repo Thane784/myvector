@@ -10,7 +10,7 @@ int main(){
     for (;it>itend;--it){
         if(*it!=0){
             std::cout << *it << std::endl;
-            //*it = 197;
+            *it = 197;
         }
     }
     std::cout << vec << "\n";
