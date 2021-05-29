@@ -18,6 +18,17 @@ public:
     myiterator(myiterator&& it);
     myiterator::reference operator =(const myiterator<V> & it);
     myiterator::reference operator =(myiterator<V>&& it);
+    myiterator::reference operator*() const noexcept;
+    myiterator::pointer operator->() const noexcept;
+    myiterator& operator++() noexcept;
+    myiterator operator++(int) noexcept;
+    myiterator& operator--() noexcept;
+    myiterator operator--(int) noexcept;
+    myiterator& operator+=(const typename myiterator::difference_type _Off) noexcept;
+    myiterator operator+(const myiterator::difference_type _Off) const noexcept;
+    myiterator& operator-=(const typename myiterator::difference_type _Off) noexcept;
+    myiterator operator-(const myiterator::difference_type _Off) const noexcept;
+    myiterator::reference operator[](const myiterator::difference_type _Off) const noexcept;
 };
 
 template<typename V>

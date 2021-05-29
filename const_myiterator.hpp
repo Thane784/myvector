@@ -15,12 +15,26 @@ public:
     const_myiterator():m_ptr(nullptr){};
     const_myiterator(const const_myiterator& it) :m_ptr(it.m_ptr){};
     const_myiterator(const_myiterator&& it);
-    const_myiterator::reference operator =(const const_myiterator<V> & it);
-    const_myiterator::reference operator =(const_myiterator<V>&& it);
+    const_myiterator::reference operator =(const const_myiterator<V> & it) noexcept;
+    const_myiterator::reference operator =(const_myiterator<V>&& it) noexcept;
+    const_myiterator::reference operator*() const noexcept;
+    const_myiterator::pointer operator->() const noexcept;
+    const_myiterator& operator++() noexcept;
+    const_myiterator operator++(int) noexcept;
+    const_myiterator& operator--() noexcept;
+    const_myiterator operator--(int) noexcept;
+    const_myiterator& operator+=(const typename const_myiterator::difference_type _Off) noexcept;
+    const_myiterator operator+(const const_myiterator::difference_type _Off) const noexcept;
+    const_myiterator& operator-=(const typename const_myiterator::difference_type _Off) noexcept;
+    const_myiterator operator-(const const_myiterator::difference_type _Off) const noexcept;
+    const_myiterator::difference_type operator-(const const_myiterator& _Right) const noexcept;
+    const_myiterator::reference operator[](const const_myiterator::difference_type _Off) const noexcept;
+    bool operator==(const const_myiterator& _Right) const noexcept;
+    const_myiterator::strong_ordering operator<=>(const const_myiterator& _Right) const noexcept;    
 };
 
 template<typename V>
-const_myiterator<V>::reference const_myiterator<V>::operator =(const_myiterator<V> && it){
+const_myiterator<V>::reference const_myiterator<V>::operator =(const_myiterator<V> && it) noexcept{
     if (&it == this)
 		return *this;
     m_ptr = it.m_ptr;
@@ -29,7 +43,7 @@ const_myiterator<V>::reference const_myiterator<V>::operator =(const_myiterator<
 }
 
 template<typename V>
-const_myiterator<V>::reference const_myiterator<V>::operator =(const const_myiterator<V> & it){
+const_myiterator<V>::reference const_myiterator<V>::operator =(const const_myiterator<V> & it) noexcept{
     if (&it == this)
 		return *this;
     m_ptr = it.m_ptr;
