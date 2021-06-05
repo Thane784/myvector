@@ -5,7 +5,8 @@
 #include <compare>
 
 template <class T>
-class myvector{
+class myvector
+{
 private:
     T *m_array;
     int m_size;
@@ -16,49 +17,51 @@ public:
     private:
         const T *m_ptr;
         const_myiterator(T *ptr) : m_ptr(ptr){};
+
     public:
         const_myiterator() : m_ptr(nullptr){};
         const_myiterator(const const_myiterator &it) : m_ptr(it.m_ptr){};
         const_myiterator(const_myiterator &&it);
-        const_myiterator::reference operator=(const const_myiterator &it) noexcept;
-        const_myiterator::reference operator=(const_myiterator &&it) noexcept;
-        const_myiterator::reference operator*() const noexcept { return (*m_ptr); };
+        const T& operator=(const const_myiterator &it) noexcept;
+        const T& operator=(const_myiterator &&it) noexcept;
+        const T& operator*() const noexcept { return (*m_ptr); };
         const_myiterator::pointer operator->() const noexcept { return (m_ptr); };
         const_myiterator &operator++() noexcept;
         const_myiterator operator++(int) noexcept;
         const_myiterator &operator--() noexcept;
         const_myiterator operator--(int) noexcept;
-        const_myiterator &operator+=(const typename const_myiterator::difference_type step) noexcept;
-        const_myiterator operator+(const const_myiterator::difference_type step) const noexcept;
-        const_myiterator &operator-=(const typename const_myiterator::difference_type step) noexcept;
-        const_myiterator operator-(const const_myiterator::difference_type step) const noexcept;
-        const_myiterator::difference_type operator-(const const_myiterator &_Right) const noexcept;
-        const_myiterator::reference operator[](const const_myiterator::difference_type _Off) const noexcept;
-        bool operator==(const const_myiterator &_Right) const noexcept;
-        std::strong_ordering operator<=>(const const_myiterator &_Right) const noexcept;
+        const_myiterator &operator+=(std::ptrdiff_t step) noexcept;
+        const_myiterator operator+(std::ptrdiff_t step) const noexcept;
+        const_myiterator &operator-=(std::ptrdiff_t step) noexcept;
+        const_myiterator operator-(std::ptrdiff_t step) const noexcept;
+        std::ptrdiff_t operator-(const const_myiterator & right) const noexcept{return(m_ptr-right.m_ptr);};
+        const T& operator[](std::ptrdiff_t step) const noexcept;
+        bool operator==(const const_myiterator &right) const noexcept{return(m_ptr==right.m_ptr);};
+        bool operator!=(const const_myiterator &right) const noexcept{return(!(m_ptr==right.m_ptr));};
+        std::strong_ordering operator<=>(const const_myiterator &right) const noexcept{return(m_ptr<=>right.m_ptr);};
     };
-    class myiterator: const_myiterator{
+    class myiterator : const_myiterator{
         friend class myvector<T>;
     private:
-        T* m_ptr;
-        myiterator(T *ptr) :m_ptr(ptr){};
+        T *m_ptr;
+        myiterator(T *ptr) : m_ptr(ptr){};
     public:
-        myiterator():m_ptr(nullptr){};
-        myiterator(const myiterator& it) :m_ptr(it.m_ptr){};
-        myiterator(myiterator&& it);
-        myiterator::reference operator =(const myiterator & it);
-        myiterator::reference operator =(myiterator&& it);
-        myiterator::reference operator*() const noexcept;
+        myiterator() : m_ptr(nullptr){};
+        myiterator(const myiterator &it) : m_ptr(it.m_ptr){};
+        myiterator(myiterator &&it);
+        T& operator=(const myiterator &it);
+        T& operator=(myiterator &&it);
+        T& operator*() const noexcept;
         myiterator::pointer operator->() const noexcept;
-        myiterator& operator++() noexcept;
+        myiterator &operator++() noexcept;
         myiterator operator++(int) noexcept;
-        myiterator& operator--() noexcept;
+        myiterator &operator--() noexcept;
         myiterator operator--(int) noexcept;
-        myiterator& operator+=(const typename myiterator::difference_type _Off) noexcept;
-        myiterator operator+(const myiterator::difference_type _Off) const noexcept;
-        myiterator& operator-=(const typename myiterator::difference_type _Off) noexcept;
-        myiterator operator-(const myiterator::difference_type _Off) const noexcept;
-        myiterator::reference operator[](const myiterator::difference_type _Off) const noexcept;
+        myiterator &operator+=(std::ptrdiff_t step) noexcept;
+        myiterator operator+(std::ptrdiff_t step) const noexcept;
+        myiterator &operator-=(std::ptrdiff_t step) noexcept;
+        myiterator operator-(std::ptrdiff_t step) const noexcept;
+        T& operator[](std::ptrdiff_t step) const noexcept;
     };
     // constructors
     myvector(){};
@@ -92,22 +95,22 @@ public:
 
 template <class T>
 myvector<T>::const_myiterator myvector<T>::cbegin() const{
-    return(myvector<T>::const_myiterator{m_array});
+    return (myvector<T>::const_myiterator{m_array});
 }
 
 template <class T>
 myvector<T>::const_myiterator myvector<T>::cend() const{
-    return(myvector<T>::const_myiterator{m_array + m_size});
+    return (myvector<T>::const_myiterator{m_array + m_size});
 }
 
-template<class T>
+template <class T>
 myvector<T>::myiterator myvector<T>::begin() const{
-    return(myiterator{m_array});
+    return (myiterator{m_array});
 }
 
-template<class T>
+template <class T>
 myvector<T>::myiterator myvector<T>::end() const{
-    return(myiterator{m_array+m_size});
+    return (myiterator{m_array + m_size});
 }
 
 template <class T>
@@ -239,15 +242,42 @@ myvector<T>::myvector(myvector<T> &&myvec){
 /*
 ----------------------------------------------------------------------------------
 */
+template <class T>
+const T& myvector<T>::const_myiterator::operator[](std::ptrdiff_t step) const noexcept{
+    return(*(*this + step));
+}
 
 template <class T>
-myvector<T>::const_myiterator& myvector<T>::const_myiterator::operator+=(const typename myvector<T>::const_myiterator::difference_type step) noexcept{
+myvector<T>::const_myiterator &myvector<T>::const_myiterator::operator+=(std::ptrdiff_t step) noexcept
+{
     m_ptr += step;
     return (*this);
 }
 
 template <class T>
-myvector<T>::const_myiterator& myvector<T>::const_myiterator::operator++() noexcept{
+myvector<T>::const_myiterator myvector<T>::const_myiterator::operator+(std::ptrdiff_t step) const noexcept{
+    auto temp{*this};
+    temp+=step;
+    return(temp);
+}
+
+template <class T>
+myvector<T>::const_myiterator& myvector<T>::const_myiterator::operator-=(std::ptrdiff_t step) noexcept{
+    m_ptr += step;
+    return (*this);
+}
+
+template <class T>
+myvector<T>::const_myiterator myvector<T>::const_myiterator::operator-(std::ptrdiff_t step) const noexcept{
+    auto temp{*this};
+    temp-=step;
+    return(temp);
+}
+
+
+
+template <class T>
+myvector<T>::const_myiterator &myvector<T>::const_myiterator::operator++() noexcept{
     ++m_ptr;
     return (*this);
 }
@@ -260,7 +290,7 @@ myvector<T>::const_myiterator myvector<T>::const_myiterator::operator++(int) noe
 }
 
 template <class T>
-myvector<T>::const_myiterator& myvector<T>::const_myiterator::operator--() noexcept{
+myvector<T>::const_myiterator &myvector<T>::const_myiterator::operator--() noexcept{
     --m_ptr;
     return (*this);
 }
@@ -273,7 +303,7 @@ myvector<T>::const_myiterator myvector<T>::const_myiterator::operator--(int) noe
 }
 
 template <class T>
-myvector<T>::const_myiterator::reference myvector<T>::const_myiterator::operator=(myvector<T>::const_myiterator &&it) noexcept{
+const T& myvector<T>::const_myiterator::operator=(myvector<T>::const_myiterator &&it) noexcept{
     if (&it == this)
         return *this;
     m_ptr = it.m_ptr;
@@ -282,7 +312,7 @@ myvector<T>::const_myiterator::reference myvector<T>::const_myiterator::operator
 }
 
 template <class T>
-myvector<T>::const_myiterator::reference myvector<T>::const_myiterator::operator=(const myvector<T>::const_myiterator &it) noexcept{
+const T& myvector<T>::const_myiterator::operator=(const myvector<T>::const_myiterator &it) noexcept{
     if (&it == this)
         return *this;
     m_ptr = it.m_ptr;
@@ -299,26 +329,25 @@ myvector<T>::const_myiterator::const_myiterator(myvector<T>::const_myiterator &&
 ----------------------------------------------------------------------------------
 */
 
-
 template <class T>
-myvector<T>::myiterator::reference myvector<T>::myiterator::operator =(myvector<T>::myiterator && it){
+T& myvector<T>::myiterator::operator=(myvector<T>::myiterator &&it){
     if (&it == this)
-		return *this;
+        return *this;
     m_ptr = it.m_ptr;
     it.m_ptr = nullptr;
-    return(*this);
+    return (*this);
 }
 
 template <class T>
-myvector<T>::myiterator::reference myvector<T>::myiterator::operator =(const myvector<T>::myiterator & it){
+T& myvector<T>::myiterator::operator=(const myvector<T>::myiterator &it){
     if (&it == this)
-		return *this;
+        return *this;
     m_ptr = it.m_ptr;
-    return(*this);
+    return (*this);
 }
 
 template <class T>
-myvector<T>::myiterator::myiterator(myvector<T>::myiterator&& it){
-    m_ptr = it.m_ptr; 
+myvector<T>::myiterator::myiterator(myvector<T>::myiterator &&it){
+    m_ptr = it.m_ptr;
     it.m_ptr = nullptr;
 }
