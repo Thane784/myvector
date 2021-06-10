@@ -4,13 +4,16 @@
 
 int main(){
     std::vector<int> vec{1,2,3,4,5,784,512,1024,20,30,40,50};
-     myvector<std::string> myvec2{"Hello world!","12345678909876654","100x100"};
+    vec.insert(vec.begin()+1,244);
+    for(int i{0};i<vec.size();++i)
+        std::cout << vec[i] << " ";
+    std::cout << "\n";
     myvector<int> myvec{1,2,3,4,5,784,512,1024,20,30,40,50};
-    auto myit = myvector<int>::const_myiterator{myvec.cbegin()};
-    auto myit2 = myvector<int>::const_myiterator{myvec.cbegin()+2};
-    auto it = std::vector<int>::const_iterator{vec.cbegin()};
-    myit+=2;
-    myit2++;
-    std::cout << myit2-myit << std::endl;
+    auto myit = myvec.begin();
+    myvec.insert(myit+1,244);
+    for(int i{0};i<myvec.size();++i)
+        std::cout << myvec[i] << " ";
+    std::cout << "\n";
+    std::cout << (myvec.cbegin()+1)-myvec.cend() << "\n";
     return(0);
 }

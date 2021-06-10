@@ -2,22 +2,21 @@
 #include <iostream>
 #include <initializer_list>
 #include <cassert>
+#include <type_traits>
 #include <compare>
+#include <utility>
 
 template <class T>
-class myvector
-{
+class myvector{
 private:
     T *m_array;
     int m_size;
-
 public:
     class const_myiterator : std::iterator<std::random_access_iterator_tag, T>{
         friend class myvector<T>;
     private:
         const T *m_ptr;
-        const_myiterator(T *ptr) : m_ptr(ptr){};
-
+        const_myiterator(const T *ptr) : m_ptr(ptr){};
     public:
         const_myiterator() : m_ptr(nullptr){};
         const_myiterator(const const_myiterator &it) : m_ptr(it.m_ptr){};
@@ -25,7 +24,7 @@ public:
         const T& operator=(const const_myiterator &it) noexcept;
         const T& operator=(const_myiterator &&it) noexcept;
         const T& operator*() const noexcept { return (*m_ptr); };
-        const_myiterator::pointer operator->() const noexcept { return (m_ptr); };
+        T* operator->() const noexcept { return (m_ptr); };
         const_myiterator &operator++() noexcept;
         const_myiterator operator++(int) noexcept;
         const_myiterator &operator--() noexcept;
@@ -34,25 +33,23 @@ public:
         const_myiterator operator+(std::ptrdiff_t step) const noexcept;
         const_myiterator &operator-=(std::ptrdiff_t step) noexcept;
         const_myiterator operator-(std::ptrdiff_t step) const noexcept;
-        std::ptrdiff_t operator-(const const_myiterator & right) const noexcept{return(m_ptr-right.m_ptr);};
         const T& operator[](std::ptrdiff_t step) const noexcept;
-        bool operator==(const const_myiterator &right) const noexcept{return(m_ptr==right.m_ptr);};
+        std::ptrdiff_t operator-(const const_myiterator & right) const noexcept{return(m_ptr==right.m_ptr);};
         bool operator!=(const const_myiterator &right) const noexcept{return(!(m_ptr==right.m_ptr));};
         std::strong_ordering operator<=>(const const_myiterator &right) const noexcept{return(m_ptr<=>right.m_ptr);};
     };
-    class myiterator : const_myiterator{
+    class myiterator : public const_myiterator{
         friend class myvector<T>;
     private:
-        T *m_ptr;
-        myiterator(T *ptr) : m_ptr(ptr){};
+        myiterator(T *ptr) : const_myiterator(ptr){};
     public:
-        myiterator() : m_ptr(nullptr){};
-        myiterator(const myiterator &it) : m_ptr(it.m_ptr){};
+        myiterator() : const_myiterator(nullptr){};
+        myiterator(const myiterator &it) : const_myiterator(it.m_ptr){};
         myiterator(myiterator &&it);
         T& operator=(const myiterator &it);
         T& operator=(myiterator &&it);
-        T& operator*() const noexcept;
-        myiterator::pointer operator->() const noexcept;
+        T& operator*() const noexcept{return(*(this->m_ptr));};
+        T* operator->() const noexcept{return(this->m_ptr);};
         myiterator &operator++() noexcept;
         myiterator operator++(int) noexcept;
         myiterator &operator--() noexcept;
@@ -69,7 +66,7 @@ public:
     myvector(const std::initializer_list<T> &list);
     myvector(const myvector &myvec);
     myvector(myvector &&myvec);
-    virtual ~myvector() { delete[] m_array; };
+    virtual ~myvector();
     // operators
     T &operator[](const int index) const { return (m_array[index]); };
     T &operator[](const int index) { return (m_array[index]); };
@@ -84,14 +81,34 @@ public:
     const_myiterator cend() const;
     myiterator begin() const;
     myiterator end() const;
-    void insert(const_myiterator it, T Talue); //ttc assert write
-    void push_back(T Talue);
+    myiterator insert(const_myiterator it, T& value){return(emplace(it,value));};
+    myiterator insert(const_myiterator it, T&& value){return(emplace(it,std::move(value)));};
+    myiterator emplace(const_myiterator it, T&& value); //ttc assert write
+    void push_back(T value);
     void pop_back();
     void resize(int size);
     int size() const { return (m_size); };
 };
 
 // functions
+
+template <class T>
+myvector<T>::myiterator myvector<T>::emplace(myvector<T>::const_myiterator it, T&& value){
+    ++m_size;
+    T *temp = new T[m_size];
+    for (int i{0}; i < m_size; ++i){
+        std::cout << it-cbegin() << "\n";
+        if(it-cbegin()==i)
+            temp[i] = value;
+        else
+            temp[i] = m_array[i];
+    }
+    delete[] m_array;
+    m_array = new T[m_size];
+    for (int i{0}; i < m_size; ++i)
+        m_array[i] = temp[i];
+    return(myiterator{begin()});
+}
 
 template <class T>
 myvector<T>::const_myiterator myvector<T>::cbegin() const{
@@ -113,14 +130,12 @@ myvector<T>::myiterator myvector<T>::end() const{
     return (myiterator{m_array + m_size});
 }
 
-template <class T>
-void myvector<T>::insert(myvector<T>::const_myiterator it, T Talue){
-}
+
 
 template <class T>
-void myvector<T>::push_back(T Talue){
+void myvector<T>::push_back(T value){
     resize(m_size + 1);
-    m_array[m_size - 1] = Talue;
+    m_array[m_size - 1] = value;
 }
 
 template <class T>
@@ -239,6 +254,11 @@ myvector<T>::myvector(myvector<T> &&myvec){
     myvec.m_array = nullptr;
 }
 
+template <class T>
+myvector<T>::~myvector(){
+    delete[] m_array;
+}
+
 /*
 ----------------------------------------------------------------------------------
 */
@@ -333,7 +353,7 @@ template <class T>
 T& myvector<T>::myiterator::operator=(myvector<T>::myiterator &&it){
     if (&it == this)
         return *this;
-    m_ptr = it.m_ptr;
+    this->m_ptr = it.m_ptr;
     it.m_ptr = nullptr;
     return (*this);
 }
@@ -342,12 +362,72 @@ template <class T>
 T& myvector<T>::myiterator::operator=(const myvector<T>::myiterator &it){
     if (&it == this)
         return *this;
-    m_ptr = it.m_ptr;
+    this->m_ptr = it.m_ptr;
     return (*this);
 }
 
 template <class T>
 myvector<T>::myiterator::myiterator(myvector<T>::myiterator &&it){
-    m_ptr = it.m_ptr;
+    this->m_ptr = it.m_ptr;
     it.m_ptr = nullptr;
+}
+
+template <class T>
+T& myvector<T>::myiterator::operator[](std::ptrdiff_t step) const noexcept{
+    return(*(*this + step));
+}
+
+template <class T>
+myvector<T>::myiterator &myvector<T>::myiterator::operator+=(std::ptrdiff_t step) noexcept
+{
+    this->m_ptr += step;
+    return (*this);
+}
+
+template <class T>
+myvector<T>::myiterator myvector<T>::myiterator::operator+(std::ptrdiff_t step) const noexcept{
+    auto temp{*this};
+    temp+=step;
+    return(temp);
+}
+
+template <class T>
+myvector<T>::myiterator& myvector<T>::myiterator::operator-=(std::ptrdiff_t step) noexcept{
+    this->m_ptr += step;
+    return (*this);
+}
+
+template <class T>
+myvector<T>::myiterator myvector<T>::myiterator::operator-(std::ptrdiff_t step) const noexcept{
+    auto temp{*this};
+    temp-=step;
+    return(temp);
+}
+
+
+
+template <class T>
+myvector<T>::myiterator &myvector<T>::myiterator::operator++() noexcept{
+    ++(this->m_ptr);
+    return (*this);
+}
+
+template <class T>
+myvector<T>::myiterator myvector<T>::myiterator::operator++(int) noexcept{
+    auto old{*this};
+    ++(this->m_ptr);
+    return (old);
+}
+
+template <class T>
+myvector<T>::myiterator &myvector<T>::myiterator::operator--() noexcept{
+    --(this->m_ptr);
+    return (*this);
+}
+
+template <class T>
+myvector<T>::myiterator myvector<T>::myiterator::operator--(int) noexcept{
+    auto old{*this};
+    --(this->m_ptr);
+    return (old);
 }
