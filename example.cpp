@@ -3,17 +3,17 @@
 #include "myvector.hpp"
 
 int main(){
-    std::vector<int> vec{1,2,3,4,5,784,512,1024,20,30,40,50};
-    vec.insert(vec.begin()+1,244);
-    for(int i{0};i<vec.size();++i)
-        std::cout << vec[i] << " ";
-    std::cout << "\n";
-    myvector<int> myvec{1,2,3,4,5,784,512,1024,20,30,40,50};
+    myvector<int> myvec{1,2,3,4,5,784};
+    myvec.pop_back();
+    myvec.push_back(123);
+    myvec.insert(myvec.cbegin()+2,2147483647);
     auto myit = myvec.begin();
-    myvec.insert(myit+1,244);
-    for(int i{0};i<myvec.size();++i)
-        std::cout << myvec[i] << " ";
-    std::cout << "\n";
-    std::cout << (myvec.cbegin()+1)-myvec.cend() << "\n";
+    auto myit2 = myit;
+    ++myit;
+    if(myit>myit2)
+        myit += 2;
+    myit[3] = 24;
+    myvec.insert(myit-2,512);
+    std::cout << myvec << "\n";
     return(0);
 }

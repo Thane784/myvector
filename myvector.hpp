@@ -1,8 +1,6 @@
 #pragma once
 #include <iostream>
 #include <initializer_list>
-#include <cassert>
-#include <type_traits>
 #include <compare>
 #include <utility>
 
@@ -15,8 +13,8 @@ public:
     class const_myiterator : std::iterator<std::random_access_iterator_tag, T>{
         friend class myvector<T>;
     private:
-        const T *m_ptr;
-        const_myiterator(const T *ptr) : m_ptr(ptr){};
+        T *m_ptr;
+        const_myiterator(T *ptr) : m_ptr(ptr){};
     public:
         const_myiterator() : m_ptr(nullptr){};
         const_myiterator(const const_myiterator &it) : m_ptr(it.m_ptr){};
@@ -34,7 +32,7 @@ public:
         const_myiterator &operator-=(std::ptrdiff_t step) noexcept;
         const_myiterator operator-(std::ptrdiff_t step) const noexcept;
         const T& operator[](std::ptrdiff_t step) const noexcept;
-        std::ptrdiff_t operator-(const const_myiterator & right) const noexcept{return(m_ptr==right.m_ptr);};
+        std::ptrdiff_t operator-(const const_myiterator & right) const noexcept{return(m_ptr-right.m_ptr);};
         bool operator!=(const const_myiterator &right) const noexcept{return(!(m_ptr==right.m_ptr));};
         std::strong_ordering operator<=>(const const_myiterator &right) const noexcept{return(m_ptr<=>right.m_ptr);};
     };
@@ -83,7 +81,7 @@ public:
     myiterator end() const;
     myiterator insert(const_myiterator it, T& value){return(emplace(it,value));};
     myiterator insert(const_myiterator it, T&& value){return(emplace(it,std::move(value)));};
-    myiterator emplace(const_myiterator it, T&& value); //ttc assert write
+    myiterator emplace(const_myiterator it, T&& value);
     void push_back(T value);
     void pop_back();
     void resize(int size);
@@ -96,12 +94,14 @@ template <class T>
 myvector<T>::myiterator myvector<T>::emplace(myvector<T>::const_myiterator it, T&& value){
     ++m_size;
     T *temp = new T[m_size];
+    int is_inserted{0};
     for (int i{0}; i < m_size; ++i){
-        std::cout << it-cbegin() << "\n";
-        if(it-cbegin()==i)
+        if(it-cbegin()==i){
             temp[i] = value;
+            ++is_inserted;
+        }
         else
-            temp[i] = m_array[i];
+            temp[i] = m_array[i-is_inserted];
     }
     delete[] m_array;
     m_array = new T[m_size];
