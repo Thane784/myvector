@@ -59,8 +59,8 @@ public:
         T& operator[](std::ptrdiff_t step) const noexcept;
     };
     // constructors
-    myvector(){};
-    myvector(int size) : m_size(size){};
+    myvector(): m_size(0),m_array(nullptr){};
+    myvector(int size) : m_array(nullptr),m_size(size){};
     myvector(const std::initializer_list<T> &list);
     myvector(const myvector &myvec);
     myvector(myvector &&myvec);
