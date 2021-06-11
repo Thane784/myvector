@@ -44,6 +44,8 @@ public:
         myiterator() : const_myiterator(nullptr){};
         myiterator(const myiterator &it) : const_myiterator(it.m_ptr){};
         myiterator(myiterator &&it);
+        myiterator(const const_myiterator &it) : const_myiterator(it.m_ptr){};
+        myiterator(const_myiterator &&it);
         T& operator=(const myiterator &it);
         T& operator=(myiterator &&it);
         T& operator*() const noexcept{return(*(this->m_ptr));};
@@ -81,7 +83,9 @@ public:
     myiterator end() const;
     myiterator insert(const_myiterator it, T& value){return(emplace(it,value));};
     myiterator insert(const_myiterator it, T&& value){return(emplace(it,std::move(value)));};
+    myiterator insert(const_myiterator it, const std::initializer_list<T> &list){return(emplace(it,list));};
     myiterator emplace(const_myiterator it, T&& value);
+    myiterator emplace(const_myiterator it, const std::initializer_list<T> &list);
     void push_back(T value);
     void pop_back();
     void resize(int size);
@@ -89,16 +93,43 @@ public:
 };
 
 // functions
+template <class T>
+myvector<T>::myiterator myvector<T>::emplace(myvector<T>::const_myiterator it, const std::initializer_list<T> &list){
+    m_size+=list.size();
+    T *temp = new T[m_size];
+    int inserted_count{0};
+    int position{0};
+    for (int i{0}; i < m_size; ++i){
+        if(it-cbegin()==i){
+            position = i;
+            for (auto &elem : list){
+                temp[i] = elem;
+                ++i;
+            }
+            inserted_count += list.size();
+            --i;
+        }
+        else
+            temp[i] = m_array[i-inserted_count];
+    }
+    delete[] m_array;
+    m_array = new T[m_size];
+    for (int i{0}; i < m_size; ++i)
+        m_array[i] = temp[i];
+    return(myiterator{begin()+position});
+}
 
 template <class T>
 myvector<T>::myiterator myvector<T>::emplace(myvector<T>::const_myiterator it, T&& value){
     ++m_size;
     T *temp = new T[m_size];
     int is_inserted{0};
+    int position{0};
     for (int i{0}; i < m_size; ++i){
         if(it-cbegin()==i){
             temp[i] = value;
             ++is_inserted;
+            position = i;
         }
         else
             temp[i] = m_array[i-is_inserted];
@@ -107,7 +138,7 @@ myvector<T>::myiterator myvector<T>::emplace(myvector<T>::const_myiterator it, T
     m_array = new T[m_size];
     for (int i{0}; i < m_size; ++i)
         m_array[i] = temp[i];
-    return(myiterator{begin()});
+    return(myiterator{begin()+position});
 }
 
 template <class T>
@@ -216,8 +247,7 @@ template <class T>
 myvector<T>::myvector(const std::initializer_list<T> &list) : myvector(list.size()){
     m_array = new T[m_size];
     int i{0};
-    for (auto &elem : list)
-    {
+    for (auto &elem : list){
         m_array[i] = elem;
         ++i;
     }
@@ -226,11 +256,9 @@ myvector<T>::myvector(const std::initializer_list<T> &list) : myvector(list.size
 template <class T>
 myvector<T>::myvector(const myvector<T> &myvec){
     m_size = myvec.m_size;
-    if (myvec.m_array)
-    {
+    if (myvec.m_array){
         m_array = new T[m_size];
-        for (int i{0}; i < myvec.m_size; ++i)
-        {
+        for (int i{0}; i < myvec.m_size; ++i){
             m_array[i] = myvec.m_array[i];
         }
     }
@@ -241,11 +269,9 @@ myvector<T>::myvector(const myvector<T> &myvec){
 template <class T>
 myvector<T>::myvector(myvector<T> &&myvec){
     m_size = myvec.m_size;
-    if (myvec.m_array)
-    {
+    if (myvec.m_array){
         m_array = new T[m_size];
-        for (int i{0}; i < myvec.m_size; ++i)
-        {
+        for (int i{0}; i < myvec.m_size; ++i){
             m_array[i] = myvec.m_array[i];
         }
     }
@@ -368,6 +394,12 @@ T& myvector<T>::myiterator::operator=(const myvector<T>::myiterator &it){
 
 template <class T>
 myvector<T>::myiterator::myiterator(myvector<T>::myiterator &&it){
+    this->m_ptr = it.m_ptr;
+    it.m_ptr = nullptr;
+}
+
+template <class T>
+myvector<T>::myiterator::myiterator(myvector<T>::const_myiterator &&it){
     this->m_ptr = it.m_ptr;
     it.m_ptr = nullptr;
 }
