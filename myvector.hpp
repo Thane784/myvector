@@ -98,10 +98,9 @@ myvector<T>::myiterator myvector<T>::emplace(myvector<T>::const_myiterator it, c
     m_size+=list.size();
     T *temp = new T[m_size];
     int inserted_count{0};
-    int position{0};
+    std::ptrdiff_t position{it-cbegin()};
     for (int i{0}; i < m_size; ++i){
         if(it-cbegin()==i){
-            position = i;
             for (auto &elem : list){
                 temp[i] = elem;
                 ++i;
@@ -124,12 +123,11 @@ myvector<T>::myiterator myvector<T>::emplace(myvector<T>::const_myiterator it, T
     ++m_size;
     T *temp = new T[m_size];
     int is_inserted{0};
-    int position{0};
+    std::ptrdiff_t position{it-cbegin()};
     for (int i{0}; i < m_size; ++i){
         if(it-cbegin()==i){
             temp[i] = value;
             ++is_inserted;
-            position = i;
         }
         else
             temp[i] = m_array[i-is_inserted];
