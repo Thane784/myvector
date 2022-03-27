@@ -95,11 +95,11 @@ public:
 // functions
 template <class T>
 myvector<T>::myiterator myvector<T>::emplace(myvector<T>::const_myiterator it, const std::initializer_list<T> &list){
-    m_size+=list.size();
+    m_size += list.size();
     T *temp = new T[m_size];
-    int inserted_count{0};
+    int inserted_count = 0;
     std::ptrdiff_t position{it-cbegin()};
-    for (int i{0}; i < m_size; ++i){
+    for (int i = 0; i < m_size; ++i){
         if(it-cbegin()==i){
             for (auto &elem : list){
                 temp[i] = elem;
@@ -113,7 +113,7 @@ myvector<T>::myiterator myvector<T>::emplace(myvector<T>::const_myiterator it, c
     }
     delete[] m_array;
     m_array = new T[m_size];
-    for (int i{0}; i < m_size; ++i)
+    for (int i = 0; i < m_size; ++i)
         m_array[i] = temp[i];
     return(myiterator{begin()+position});
 }
@@ -122,9 +122,9 @@ template <class T>
 myvector<T>::myiterator myvector<T>::emplace(myvector<T>::const_myiterator it, T&& value){
     ++m_size;
     T *temp = new T[m_size];
-    int is_inserted{0};
+    int is_inserted = 0;
     std::ptrdiff_t position{it-cbegin()};
-    for (int i{0}; i < m_size; ++i){
+    for (int i = 0; i < m_size; ++i){
         if(it-cbegin()==i){
             temp[i] = value;
             ++is_inserted;
@@ -134,7 +134,7 @@ myvector<T>::myiterator myvector<T>::emplace(myvector<T>::const_myiterator it, T
     }
     delete[] m_array;
     m_array = new T[m_size];
-    for (int i{0}; i < m_size; ++i)
+    for (int i = 0; i < m_size; ++i)
         m_array[i] = temp[i];
     return(myiterator{begin()+position});
 }
@@ -175,12 +175,12 @@ void myvector<T>::pop_back(){
 template <class T>
 void myvector<T>::resize(int size){
     T *temp = new T[size];
-    for (int i{0}; i < size; ++i)
+    for (int i = 0; i < size; ++i)
         temp[i] = m_array[i];
     delete[] m_array;
     m_array = new T[size];
     m_size = size;
-    for (int i{0}; i < size; ++i)
+    for (int i = 0; i < size; ++i)
         m_array[i] = temp[i];
 }
 
@@ -195,7 +195,7 @@ myvector<T> &myvector<T>::operator=(const myvector<T> &myvec){
     if (myvec.m_array)
     {
         m_array = new T[m_size];
-        for (int i{0}; i < myvec.m_size; ++i)
+        for (int i = 0; i < myvec.m_size; ++i)
         {
             m_array[i] = myvec.m_array[i];
         }
@@ -214,7 +214,7 @@ myvector<T> &myvector<T>::operator=(myvector<T> &&myvec){
     if (myvec.m_array)
     {
         m_array = new T[m_size];
-        for (int i{0}; i < myvec.m_size; ++i)
+        for (int i = 0; i < myvec.m_size; ++i)
         {
             m_array[i] = myvec.m_array[i];
         }
@@ -234,7 +234,7 @@ bool operator==(const myvector<U> &a, const myvector<U> &b){
 
 template <class U>
 std::ostream &operator<<(std::ostream &out, const myvector<U> &myvec){
-    for (int i{0}; i < myvec.m_size; ++i)
+    for (int i = 0; i < myvec.m_size; ++i)
         out << myvec.m_array[i] << " ";
     return (out);
 }
@@ -244,7 +244,7 @@ std::ostream &operator<<(std::ostream &out, const myvector<U> &myvec){
 template <class T>
 myvector<T>::myvector(const std::initializer_list<T> &list) : myvector(list.size()){
     m_array = new T[m_size];
-    int i{0};
+    int i = 0;
     for (auto &elem : list){
         m_array[i] = elem;
         ++i;
@@ -256,7 +256,7 @@ myvector<T>::myvector(const myvector<T> &myvec){
     m_size = myvec.m_size;
     if (myvec.m_array){
         m_array = new T[m_size];
-        for (int i{0}; i < myvec.m_size; ++i){
+        for (int i = 0; i < myvec.m_size; ++i){
             m_array[i] = myvec.m_array[i];
         }
     }
@@ -269,7 +269,7 @@ myvector<T>::myvector(myvector<T> &&myvec){
     m_size = myvec.m_size;
     if (myvec.m_array){
         m_array = new T[m_size];
-        for (int i{0}; i < myvec.m_size; ++i){
+        for (int i = 0; i < myvec.m_size; ++i){
             m_array[i] = myvec.m_array[i];
         }
     }
@@ -301,7 +301,7 @@ myvector<T>::const_myiterator &myvector<T>::const_myiterator::operator+=(std::pt
 template <class T>
 myvector<T>::const_myiterator myvector<T>::const_myiterator::operator+(std::ptrdiff_t step) const noexcept{
     auto temp{*this};
-    temp+=step;
+    temp += step;
     return(temp);
 }
 
@@ -314,7 +314,7 @@ myvector<T>::const_myiterator& myvector<T>::const_myiterator::operator-=(std::pt
 template <class T>
 myvector<T>::const_myiterator myvector<T>::const_myiterator::operator-(std::ptrdiff_t step) const noexcept{
     auto temp{*this};
-    temp-=step;
+    temp -= step;
     return(temp);
 }
 
@@ -417,7 +417,7 @@ myvector<T>::myiterator &myvector<T>::myiterator::operator+=(std::ptrdiff_t step
 template <class T>
 myvector<T>::myiterator myvector<T>::myiterator::operator+(std::ptrdiff_t step) const noexcept{
     auto temp{*this};
-    temp+=step;
+    temp += step;
     return(temp);
 }
 
@@ -430,7 +430,7 @@ myvector<T>::myiterator& myvector<T>::myiterator::operator-=(std::ptrdiff_t step
 template <class T>
 myvector<T>::myiterator myvector<T>::myiterator::operator-(std::ptrdiff_t step) const noexcept{
     auto temp{*this};
-    temp-=step;
+    temp -= step;
     return(temp);
 }
 
